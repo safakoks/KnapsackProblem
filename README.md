@@ -6,6 +6,7 @@ Weights and values of the items and capacity of the knapsack should be given to
 the program using a text file
 
 The following variables should be given to program as a command line parameter.
+		
 		Size of population
 		
 		Number of generation
