@@ -1,4 +1,4 @@
-import random , select , argparse
+import random , select , argparse, time
 from item import Item
 ##########################################################################################
 # CONFIG
@@ -47,10 +47,10 @@ N_POINT = args.n if args.n else 3
 POP_SIZE = args.size if args.size else 50
 
 # Elitisim for selection. Default is True 
-ELITISM = args.elitism if not args.elitism else True
+ELITISM = True if args.elitism else args.elitism
 
-# Number of generations entered by the user. Default is 2000
-GENERATIONS = args.gnum if args.gnum else 20000
+# Number of generations entered by the user. Default is 200
+GENERATIONS = args.gnum if args.gnum else 200
 
 # Crossover probability enterd by the user. Default is 0.1
 CROSSOVER_PROBABILTY = args.crossoverprob if args.crossoverprob else 0.1
@@ -111,12 +111,12 @@ def roulette_wheel_selection(pop, parent_number):
         for target in pop:
             current_value+= fitness(target)
             if current_value >= spin_value:
-                print "SPIN!!! ,%s, TOTAL VALUE / SPIN VALUE : %s/%s, fit: %s" % (str(target),str(total_value), str(spin_value) , fitness(target)) 
+                # print "SPIN!!! ,%s, TOTAL VALUE / SPIN VALUE : %s/%s, fit: %s" % (str(target),str(total_value), str(spin_value) , fitness(target)) 
                 parents.append(target)
                 pop.remove(target)
                 total_value = get_total_value(pop)
                 break
-    print("-------------------------------------------------------------------------")
+    # print("-------------------------------------------------------------------------")
     return parents
 
 # n-point crossover by using two solution to generate their child
@@ -178,18 +178,21 @@ def creating_new_generation(pop):
 
 
 def main():
+    start_time = time.time()
     population = generate_starting_population(POP_SIZE)
     max_fit = 0
     for generation in range(1,GENERATIONS+1):
         print "Generation %d with %d" % (generation,len(population))
         population = sorted(population, key=lambda x: fitness(x), reverse=True)
         for i in population:        
-            print "%s, fit: %s" % (str(i), fitness(i)) 
+            # print "%s, fit: %s" % (str(i), fitness(i)) 
             if fitness(i) > max_fit:
                 max_fit = fitness(i)     
         population = creating_new_generation(population)
     # for item in ITEMS:
     #     print(item)
+    elapsed_time = time.time() - start_time
     print "Maximum fitness: " + str(max_fit)
+    print "Time : " + str(elapsed_time) + " seconds"
 if __name__ == "__main__":
     main()
