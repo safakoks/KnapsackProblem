@@ -3,16 +3,9 @@ In the program, implemented a Genetic Algorithm which solves the 0-1 Knapsack pr
 The program has the following criterias:
 
 
-Weights and values of the items and capacity of the knapsack has to be given to
-the program using a text file
-
-The following variables have been given to program as a command line parameter
-
-Weights and values of the items and capacity of the knapsack should be given to
-the program using a text file
+	Weights and values of the items and capacity of the knapsack has to be given to the program using a text file
 
 The following variables should be given to program as a command line parameter.
->>>>>>> 7bdc6bd000bb52b3eaf7df642ec56141ac44d8ee
 		
 		Size of population
 		
