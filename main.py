@@ -1,4 +1,4 @@
-import random , select , argparse, sys
+import random , select , argparse
 from item import Item
 ##########################################################################################
 # CONFIG
