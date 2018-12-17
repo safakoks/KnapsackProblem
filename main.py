@@ -1,8 +1,30 @@
-import random , select
+import random , select , argparse, sys
 from item import Item
-
 ##########################################################################################
 # CONFIG
+def popsizelimit(x):
+    x = int(x)
+    if x < 20:
+        raise argparse.ArgumentTypeError("Minimum population is 20")
+    return x
+
+def str2bool(v):
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+        
+parser = argparse.ArgumentParser()
+parser.add_argument("--capacity", type=int, help="Set the capacity. Default is 30.")
+parser.add_argument("--size", type=popsizelimit, help="Set the population size. Default is 50.")
+parser.add_argument("-n", type=int, help="Set the number of points for the crossover. Default is 3.")
+parser.add_argument("--elitism", type=str2bool, help="Set the selection type. Default is true.")
+parser.add_argument("--gnum", type=int, help="Set the number of generations. Default is 2000.")
+parser.add_argument("--mutationprob", type=float, help="Set the mutation probability (Must be between 0 and 1). Default is 0.05")
+parser.add_argument("--crossoverprob", type=float, help="Set the crossover probability (Must be between 0 and 1). Default is 0.1")
+args = parser.parse_args()
 
 # Read txt file and get items
 ITEMS = []
@@ -16,22 +38,25 @@ with open("items.txt", "r") as items:
 ITEMS_COUNT = len(ITEMS)
 
 # Capacity of the knapsack entered by the user. Default is 30
-CAPACITY = 50
+CAPACITY = args.capacity if args.capacity else 30
 
 # Number of points for the multi point crossover entered by the user. Default is 3
-N_POINT = 3
+N_POINT = args.n if args.n else 3
 
 # Number of individulas in the population filled with some permutation of 0s and 1s entered by the user. Default is 50 
-POP_SIZE = 30
+POP_SIZE = args.size if args.size else 50
+
+# Elitisim for selection. Default is True 
+ELITISM = args.elitism if not args.elitism else True
 
 # Number of generations entered by the user. Default is 2000
-GENERATIONS = 20000
+GENERATIONS = args.gnum if args.gnum else 20000
 
 # Crossover probability enterd by the user. Default is 0.1
-CROSSOVER_PROBABILTY = 0.3
+CROSSOVER_PROBABILTY = args.crossoverprob if args.crossoverprob else 0.1
 
 # Mutate probability entered by the user. Defaulst is 0.05
-MUTATION_CHANCE = 0.05
+MUTATION_PROBABITLY = args.mutationprob if args.mutationprob else 0.05
 
 # END OF CONFIG
 ##########################################################################################
@@ -89,7 +114,9 @@ def roulette_wheel_selection(pop, parent_number):
                 print "SPIN!!! ,%s, TOTAL VALUE / SPIN VALUE : %s/%s, fit: %s" % (str(target),str(total_value), str(spin_value) , fitness(target)) 
                 parents.append(target)
                 pop.remove(target)
+                total_value = get_total_value(pop)
                 break
+    print("-------------------------------------------------------------------------")
     return parents
 
 # n-point crossover by using two solution to generate their child
@@ -113,15 +140,23 @@ def crossover(father, mother):
 # generating a new generation by mutation and crossover
 def creating_new_generation(pop):
     # selection with roulette_wheel_selection
-    parents = roulette_wheel_selection(pop, (len(pop)/5))
+    new_generation = []
+    parents = []
+
+    if ELITISM :
+        parents = pop[0:POP_SIZE/5]
+    else:
+        parents = roulette_wheel_selection(pop, (POP_SIZE/5))
+    
     parents_length = len(parents)
+    new_generation.extend(parents[:])
     # mutating selected parents
     for p in parents:
-        if MUTATION_CHANCE > random.random():
+        if MUTATION_PROBABITLY > random.random():
             mutate(p)
     children = []
-    desired_length = POP_SIZE - len(parents)
-    # creating new children using with parents
+    desired_length = POP_SIZE - parents_length
+    # creating new children by using parents
     while len(children) < desired_length:
         # crossover cheking
         if CROSSOVER_PROBABILTY > random.random():
@@ -130,23 +165,22 @@ def creating_new_generation(pop):
             father = parents[father_and_mother[0]]
             mother = parents[father_and_mother[1]]
             # crossover selected two parents to create a new child
-            child = crossover(father, mother)  
+            child = crossover(father[:], mother[:])  
         else:
             # or cloning a parent randomly
-            child =  parents[random.randint(0,parents_length-1)]
+            child =  parents[random.randint(0,parents_length-1)][:]
         # checking to mutate the new child
-        if MUTATION_CHANCE > random.random():
+        if MUTATION_PROBABITLY > random.random():
             mutate(child)
-        children.append(child)
-    parents.extend(children)
-    return parents
+        children.append(child[:])
+    new_generation.extend(children[:])
+    return new_generation
 
 
 def main():
-    generation = 1
     population = generate_starting_population(POP_SIZE)
     max_fit = 0
-    for g in range(0,GENERATIONS):
+    for generation in range(1,GENERATIONS+1):
         print "Generation %d with %d" % (generation,len(population))
         population = sorted(population, key=lambda x: fitness(x), reverse=True)
         for i in population:        
@@ -154,10 +188,8 @@ def main():
             if fitness(i) > max_fit:
                 max_fit = fitness(i)     
         population = creating_new_generation(population)
-        generation += 1
     # for item in ITEMS:
     #     print(item)
     print "Maximum fitness: " + str(max_fit)
-
 if __name__ == "__main__":
     main()
