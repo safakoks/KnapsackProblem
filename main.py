@@ -25,7 +25,7 @@ N_POINT = 3
 POP_SIZE = 30
 
 # Number of generations entered by the user. Default is 2000
-GENERATIONS = 5000
+GENERATIONS = 20000
 
 # Crossover probability enterd by the user. Default is 0.1
 CROSSOVER_PROBABILTY = 0.3
@@ -58,7 +58,7 @@ def fitness(target):
 def get_total_value(pop):
     total_value = 0
     for target in pop:
-        total_value+= fitness(target)
+        total_value += fitness(target)
     return total_value         
 
 # generating initial population
@@ -74,6 +74,7 @@ def mutate(target):
         target[r] = 0
     else:
         target[r] = 1
+
 # selecting parents by using roulette wheel selection
 def roulette_wheel_selection(pop, parent_number):
     parents = []
@@ -85,7 +86,7 @@ def roulette_wheel_selection(pop, parent_number):
         for target in pop:
             current_value+= fitness(target)
             if current_value >= spin_value:
-                print "SPIN!!! ,%s, fit: %s" % (str(target), fitness(target)) 
+                print "SPIN!!! ,%s, TOTAL VALUE / SPIN VALUE : %s/%s, fit: %s" % (str(target),str(total_value), str(spin_value) , fitness(target)) 
                 parents.append(target)
                 pop.remove(target)
                 break
