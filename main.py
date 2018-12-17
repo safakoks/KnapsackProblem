@@ -1,8 +1,17 @@
-import random , select
+import random , select , argparse
 from item import Item
 
 ##########################################################################################
 # CONFIG
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--capacity", help="Set the capacity. Default is 30.")
+parser.add_argument("--size", help="Set the population size. Default is 50.")
+parser.add_argument("-n", help="Set the number of points for the crossover. Default is 3.")
+parser.add_argument("--generations", help="Set the number of generations. Default is 2000.")
+parser.add_argument("--mutationprob", help="Set the mutation probability (Must be between 0 and 1). Default is 0.05")
+parser.add_argument("--crossoverprob", help="Set the crossover probability (Must be between 0 and 1). Default is 0.1")
+args = parser.parse_args()
 
 # Read txt file and get items
 ITEMS = []
@@ -16,22 +25,22 @@ with open("items.txt", "r") as items:
 ITEMS_COUNT = len(ITEMS)
 
 # Capacity of the knapsack entered by the user. Default is 30
-CAPACITY = 50
+CAPACITY = args.capacity if args.capacity else 30
 
 # Number of points for the multi point crossover entered by the user. Default is 3
-N_POINT = 3
+N_POINT = args.n if args.n else 3
 
 # Number of individulas in the population filled with some permutation of 0s and 1s entered by the user. Default is 50 
-POP_SIZE = 30
+POP_SIZE = args.size if args.size else 50
 
 # Number of generations entered by the user. Default is 2000
-GENERATIONS = 5000
+GENERATIONS = args.generations if args.generations else 2000
 
 # Crossover probability enterd by the user. Default is 0.1
-CROSSOVER_PROBABILTY = 0.3
+CROSSOVER_PROBABILTY = args.crossoverprob if args.crossoverprob else 0.1
 
 # Mutate probability entered by the user. Defaulst is 0.05
-MUTATION_CHANCE = 0.05
+MUTATION_PROBABITLY = args.mutationprob if args.mutationprob else 0.05
 
 # END OF CONFIG
 ##########################################################################################
@@ -116,7 +125,7 @@ def creating_new_generation(pop):
     parents_length = len(parents)
     # mutating selected parents
     for p in parents:
-        if MUTATION_CHANCE > random.random():
+        if MUTATION_PROBABITLY > random.random():
             mutate(p)
     children = []
     desired_length = POP_SIZE - len(parents)
@@ -134,7 +143,7 @@ def creating_new_generation(pop):
             # or cloning a parent randomly
             child =  parents[random.randint(0,parents_length-1)]
         # checking to mutate the new child
-        if MUTATION_CHANCE > random.random():
+        if MUTATION_PROBABITLY > random.random():
             mutate(child)
         children.append(child)
     parents.extend(children)
